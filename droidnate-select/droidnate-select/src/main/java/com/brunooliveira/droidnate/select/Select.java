@@ -19,65 +19,41 @@ public final class Select {
 	private String className;
 	private String alias;
 	private String sql;
+	
+	private static final String ALL = "*";
 
-	private Select(String className) {
-		this.className = className;
-		this.alias = className;
+	private Select(String... columns) {
 		this.columns = new ArrayList<String>();
 		this.criterias = new ArrayList<Criteria>();
 		this.orders = new ArrayList<Order>();
 		this.joinClasses = new ArrayList<JoinClass>();
-	}
-
-	private Select(String className, String alias) {
-		this.className = className;
-		if (alias != null) this.alias = alias;
-		else this.alias = className;
-		this.columns = new ArrayList<String>();
-		this.criterias = new ArrayList<Criteria>();
-		this.orders = new ArrayList<Order>();
-		this.joinClasses = new ArrayList<JoinClass>();
-	}
-
-	public static Select from(String className) {
-		return new Select(className);
-	}
-
-	public static Select from(String className, String alias) {
-		return new Select(className, alias);
-	}
-
-	public static Select from(Class<?> clazz) {
-		return new Select(clazz.getSimpleName());
-	}
-
-	public static Select from(Class<?> clazz, String alias) {
-		return new Select(clazz.getSimpleName(), alias);
-	}
-
-	public static Or or(Criteria... criterias) {
-		return new Or(criterias);
+		for(String column : columns) {
+			if (column != null) this.columns.add(column);
+		}
 	}
 	
-	public Select columns(String... columns) {
-		for (String column : columns) {
-			this.columns.add(column);
-		}
+	public static Select all() {
+		return new Select(ALL);
+	}
+	
+	public static Select columns(String... columns) {
+		return new Select(columns);
+	}
+
+	public Select from(String className) {
+		this.className = className;
+		this.alias = className;
 		return this;
 	}
 
-	public Select join(Class<?> joinClass, String pk, String fk) {
-		this.joinClasses.add(new JoinClass(joinClass, pk, fk));
+	public Select from(String className, String alias) {
+		this.className = className;
+		this.alias = alias;
 		return this;
 	}
 
 	public Select join(String joinClassName, String pk, String fk) {
 		this.joinClasses.add(new JoinClass(joinClassName, pk, fk));
-		return this;
-	}
-
-	public Select join(Class<?> joinClass, String pk, String fk, String alias) {
-		this.joinClasses.add(new JoinClass(joinClass, pk, fk, alias));
 		return this;
 	}
 
@@ -119,13 +95,17 @@ public final class Select {
 	public String getSql() {
 		return sql;
 	}
+	
+	public static Or or(Criteria... criterias) {
+		return new Or(criterias);
+	}
 
 	private boolean hasJoin() {
 		return joinClasses.size() > 0;
 	}
 
 	private String generateSQL(boolean unique) {
-		StringBuilder sqlBuilder = new StringBuilder("SELECT " + (distinct ? "DISTINCT " : "") + (columns.size() > 0 ? getColumns() : "*") + " FROM " + className + (hasJoin() ? " " + alias : ""));
+		StringBuilder sqlBuilder = new StringBuilder("SELECT " + (distinct ? "DISTINCT " : "") + getColumns() + " FROM " + className + (hasJoin() ? " " + alias : ""));
 		if (hasJoin()) {
 			for (JoinClass join : joinClasses) {
 				sqlBuilder.append(" INNER JOIN " + join.getClassName() + " " + join.getAlias() + " ON " + alias + "." + join.getPk() + " = " + join.getAlias()
