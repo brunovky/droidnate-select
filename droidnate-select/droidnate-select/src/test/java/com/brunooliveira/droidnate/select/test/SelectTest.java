@@ -175,6 +175,25 @@ public class SelectTest {
 	}
 	
 	@Test
+	public void testColumns() {
+		Select select = Select.from(User.class)
+				.columns("name", "age")
+				.list();
+		assertEquals("SELECT name,age FROM User", select.getSql());
+		System.out.println(select.getSql());
+	}
+	
+	@Test
+	public void testColumnsWithJoin() {
+		Select select = Select.from(User.class, "u")
+				.join(Orders.class, "id", "user_id", "o")
+				.columns("u.name", "o.price")
+				.list();
+		assertEquals("SELECT u.name,o.price FROM User u INNER JOIN Orders o ON u.id = o.user_id", select.getSql());
+		System.out.println(select.getSql());
+	}
+	
+	@Test
 	public void testOr() {
 		Or or = Select.or(Clause.like("name", "A", LikeType.RIGHT_SIDE),
 				Clause.like("name", "B", LikeType.RIGHT_SIDE));
