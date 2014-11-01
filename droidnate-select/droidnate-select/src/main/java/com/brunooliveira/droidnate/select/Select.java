@@ -71,7 +71,7 @@ public final class Select {
 		return this;
 	}
 	
-	public Select add(Criteria criteria) {
+	public Select where(Criteria criteria) {
 		if (criteria != null) this.criterias.add(criteria);
 		return this;
 	}
@@ -81,7 +81,7 @@ public final class Select {
 		return this;
 	}
 	
-	public Select addOrder(Order order) {
+	public Select orderBy(Order order) {
 		if (order != null) this.orders.add(order);
 		return this;
 	}
