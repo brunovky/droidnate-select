@@ -131,6 +131,16 @@ public class SelectTest {
 	}
 	
 	@Test
+	public void testLimit() {
+		Select select = Select.from(User.class)
+				.where(Clause.like("name", "B", LikeType.RIGHT_SIDE))
+				.limit(10)
+				.list();
+		assertEquals("SELECT * FROM User WHERE name LIKE 'B%' LIMIT 10", select.getSql());
+		System.out.println(select.getSql());
+	}
+	
+	@Test
 	public void testOrderAsc() {
 		Select select = Select.from(User.class)
 				.orderBy(Order.asc("name"))
@@ -145,6 +155,22 @@ public class SelectTest {
 				.orderBy(Order.desc("name"))
 				.list();
 		assertEquals("SELECT * FROM User ORDER BY name DESC", select.getSql());
+		System.out.println(select.getSql());
+	}
+	
+	@Test
+	public void testUnique() {
+		Select select = Select.from(User.class)
+				.unique();
+		assertEquals("SELECT * FROM User LIMIT 1", select.getSql());
+		System.out.println(select.getSql());
+	}
+	
+	@Test
+	public void testList() {
+		Select select = Select.from(User.class)
+				.list();
+		assertEquals("SELECT * FROM User", select.getSql());
 		System.out.println(select.getSql());
 	}
 	
